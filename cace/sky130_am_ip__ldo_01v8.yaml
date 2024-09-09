@@ -1,0 +1,184 @@
+#--------------------------------------------------------------
+# CACE circuit characterization file
+#--------------------------------------------------------------
+
+name:           sky130_am_ip__ldo_01v8
+description:    Narrow bandwidth, low-power LDO for use in generating supply for the 1.8V bandgap
+PDK:            sky130A
+
+cace_format:    5.2
+
+authorship:
+  designer:         Alexandre Menu
+  institution:      unknwon     
+  creation_date:    March 26, 2024
+  license:          Apache 2.0
+
+paths:
+  root:             ..
+  schematic:        xschem
+  magic:            mag
+  layout:           gds
+  netlist:          netlist
+  documentation:    docs
+
+pins:
+  AVDD:
+    description: analog power supply
+    type: power
+    direction: inout
+    Vmin: 3
+    Vmax: 5.5
+  AVSS:
+    description: Analog ground
+    type: ground
+    direction: inout
+  DVDD:
+    description: Digital power supply
+    type: power
+    direction: inout
+  DVSS:
+    description: Digital ground
+    type: ground
+    direction: inout
+  ENA:
+    description: digital enable
+    type: digital 
+    direction: input
+  VREF_EXT:
+    description: External Reference Voltage 
+    type: power
+    direction: input
+  SEL_EXT:
+    description: Mux selector  
+    type: digital
+    direction: input
+  vout:
+    description: Voltage output
+    type: signal
+    direction: output
+
+default_conditions:
+  AVDD:
+    description: Analog power supply voltage
+    display: AVdd
+    unit: V
+    typical: 3.3
+  DVDD:
+    description: Digital power supply voltage
+    display: DVdd
+    unit: V
+    typical: 1.8
+  VREF_EXT:
+    description: Analog External Reference Voltage
+    display: vref_ext
+    unit: V
+    typical: 1.2
+  SEL_EXT:
+    description: Digital External Reference Select Control
+    display:  vref_sel_ext
+    typical: 1
+  ENA:
+    description: Digital Enable Signal 
+    display: enable
+    typical: 1
+  corner:
+    description: Process corner
+    display: Corner
+    typical: tt
+  temperature:
+    description: Ambient temperature
+    display: Temp
+    unit: °C
+    typical: 27
+
+parameters:
+  transient_response:
+    description: transient response
+    display: transient response
+    unit: V
+    tool:
+      ngspice:
+        template: sky130_am_ip__ldo_01v8_tran_tb.sch
+        format: ascii
+        suffix: .data
+        variables: [time, VAVDD, vout, vout_op]
+    plot:
+      transient:
+        suffix: .svg
+        xaxis: time
+        yaxis: [VAVDD, vout, vout_op]
+    variables:
+      time:
+        display: Time
+        unit: ms
+      vout:
+        display: Vout
+        unit: V
+      vout_op:
+        display: Vout_op
+        unit: V
+    conditions:
+      temperature:
+        minimum: -40
+        typical: 27
+        maximum: 130
+      corner:
+        minimum: ss
+        typical: tt
+        maximum: ff
+
+  magic_area:
+    spec:
+      area:
+        display: Area
+        description: Total circuit layout area
+        unit: µm²
+        maximum:
+          value: any
+      width:
+        display: Width
+        description: Total circuit layout width
+        unit: µm
+        maximum:
+          value: any
+      height:
+        display: Height
+        description: Total circuit layout height
+        unit: µm
+        maximum:
+          value: any
+    tool:
+      magic_area
+
+  magic_drc:
+    description: Magic DRC
+    display: Magic DRC
+    spec:
+      drc_errors:
+        maximum:
+          value: 0
+    tool:
+      magic_drc
+
+  netgen_lvs:
+    description: Netgen LVS
+    display: Netgen LVS
+    spec:
+      lvs_errors:
+        maximum:
+          value: 0
+    tool:
+      netgen_lvs:
+         script: run_project_lvs.tcl
+
+  klayout_drc_full:
+    description: KLayout DRC full
+    display: KLayout DRC full
+    spec:
+      drc_errors:
+        maximum:
+          value: 0
+    tool:
+        klayout_drc:
+            args: ['-rd', 'feol=true', '-rd', 'beol=true', '-rd', 'offgrid=true']
